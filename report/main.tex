@@ -1,0 +1,173 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{booktabs}
+\title{Heuristic Optimization : Implementation exercise 1}
+\author{Nikita Marchant (nimarcha@vub.ac.be)}
+
+\setlength{\parskip}{\baselineskip}%
+\setlength{\parindent}{0pt}%
+
+\begin{document}
+\maketitle
+
+\section{Implementation}
+
+\subsection{Usage}
+This project was implemented in C++ with the latest C++17 additions for a better ease when programming.
+The compilation uses a\texttt{Makefile}. You can compile it by running the command \texttt{make} in the working directory. It will produce an executable named \texttt{fssp}. When ran with the \texttt{-h} option, it will show how to invocate it.
+
+When properly invoked, it will output only one line, containing only one integer : the score of the solution it found.
+
+\subsection{Organization}
+
+The main class \texttt{Instance} is inspired by the \texttt{PfspInstance} class given with the assignment.
+Notable changes are that indexes now begin at 0 to follow the convention of C++ and the move a the parsing into the constructor.
+
+The rest of the code is split into 4 other files :
+\begin{itemize}
+\item \texttt{main.cpp} : the file responsible for calling th rest of the code and parsing the command line arguments.
+\item \texttt{initialization.cpp} containing the initialization functions
+\item \texttt{neighborhood.cpp} containing the neighborhood generation functions
+\item \texttt{pivoting.cpp} containing the pivoting functions.
+\end{itemize}
+
+Note: another change from the original code given with the assignment is that the random seed is fixed to be able to reproduce experiments easy. If desired, this behavior can be overridden with a command line parameter.
+
+
+\section{Experiments}
+
+All the results shown here were computed and extracted from an IPython notebook
+given along with the source code.\footnote{The notebook is called analysis and can be found both in the .html and .ipynb version}
+
+\subsection{Exercise 1}
+
+At first, we compute the relative deviation from the best known solution :
+
+\begin{center}
+\begin{tabular}{lllr}
+\toprule
+Initialization & Pivoting & Neighborhood & Relative deviation \\
+\midrule
+random & best-fit & exchange &       4.526442 \\
+       &      & insert &       9.536986 \\
+       &      & transpose &      37.422758 \\
+       & first-fit & exchange &       1.840076 \\
+       &      & insert &       6.995218 \\
+       &      & transpose &      36.153227 \\
+srz & best-fit & exchange &       3.109973 \\
+       &      & insert &       3.161487 \\
+       &      & transpose &       4.144504 \\
+       & first-fit & exchange &       2.988648 \\
+       &      & insert &       2.935848 \\
+       &      & transpose &       4.130356 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Then the mean computation time:
+
+\begin{center}
+\begin{tabular}{llllr}
+\toprule
+       &      &          &     &        \\
+Initialization & Pivoting & Neighborhood  & \#Jobs &  Mean time  \\
+\midrule
+random & best-fit & exchange & 50  &   0.206074 \\
+       &      &          & 100 &   3.410456 \\
+       &      & insert & 50  &   0.250388 \\
+       &      &          & 100 &   3.855229 \\
+       &      & transpose & 50  &   0.017638 \\
+       &      &          & 100 &   0.080919 \\
+       & first-fit & exchange & 50  &   0.645275 \\
+       &      &          & 100 &  15.081069 \\
+       &      & insert & 50  &   0.830786 \\
+       &      &          & 100 &  19.725573 \\
+       &      & transpose & 50  &   0.022015 \\
+       &      &          & 100 &   0.083597 \\
+srz & best-fit & exchange & 50  &   0.057918 \\
+       &      &          & 100 &   0.771066 \\
+       &      & insert & 50  &   0.057227 \\
+       &      &          & 100 &   0.751073 \\
+       &      & transpose & 50  &   0.015344 \\
+       &      &          & 100 &   0.042693 \\
+       & first-fit & exchange & 50  &   0.053892 \\
+       &      &          & 100 &   1.070865 \\
+       &      & insert & 50  &   0.071624 \\
+       &      &          & 100 &   1.092688 \\
+       &      & transpose & 50  &   0.016870 \\
+       &      &          & 100 &   0.040687 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+After those two overviews, we can analyze in depth if there is a statistically significant difference between some methods, both in computation time and score.
+
+For that we use the Student t-test with a significance level of $0.05$ or $5\%$.
+
+When comparing the random initialization versus the simplified RZ heuristic, we see that none of the variants yield a significant improvement in the score over another.
+
+The next step is to compare the pivoting methods : in this case, except when using the SRZ and exchange or transpose, the ``first-improvement'' yields a significantly better score.
+When analyzing the computation time, we see another tendency  : when using the transpose method, the times are similar but otherwise the best-improvement wins.
+
+The last comparison to do is the neighborhoods: here, the result is more complex.
+When using the SRZ, using exchange of insert does not increase the score.
+Otherwise, exchange is always better than the others and insert is superior to transpose.
+When analyzing the computation time, we see that the transpose method is faster all the time and that exchange is faster than insert except with SRZ where there is no difference.
+
+\subsection{Exercise 2}
+At first, we compute the relative deviation from the best known solution :
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Neighborhood &  Relative deviation  \\
+\midrule
+Transpose exchange insert      &       2.550408 \\
+Transpose insert exchange      &       2.745331 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Then the mean computation time:
+
+
+\begin{center}
+\begin{tabular}{llr}
+\toprule
+        &     &       \\
+Neighborhood & \#Jobs &   Time  \\
+\midrule
+Transpose exchange insert & 50  &  0.073599 \\
+        & 100 &  1.154808 \\
+Transpose insert exchange & 50  &  0.064993 \\
+        & 100 &  0.728432 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+We can compute the improvement between a single neighborhood and the VND : \\
+Transpose, exchange, insert vs exchange: 122\% \\
+Transpose, exchange, insert vs insert: 221\%   \\
+Transpose, insert, exchange vs exchange: 113\% \\
+Transpose, insert, exchange vs insert: 206\%   \\
+
+When comparing the scores of both VND neighborhoods with a student test, we see that
+transpose, exchange, insert has a better score than the other.
+
+We thus can conclude than using VND with the transpose, exchange, insert is preferable over the other methods.
+
+\end{document}
