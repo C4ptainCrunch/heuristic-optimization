@@ -27,18 +27,20 @@ def runi(instance, algo, timeout=200):
 instances50 = glob.glob("instances/50_*_*")
 instances100 = glob.glob("instances/100_*_*")
 
-instances = instances50 + instances100
-
-
 def star_run(args):
-    return runi(*args)
+    try:
+        return runi(*args)
+    except Exception as e:
+        return {"error": str(e), "args": args}
 
 
 if __name__ == '__main__':
     jobs = [(instance, "ils", 70) for instance in instances50] * 5
     jobs += [(instance, "genetic", 70) for instance in instances50] * 5
-    jobs = [(instance, "ils", 200) for instance in instances100] * 5
+    jobs += [(instance, "ils", 200) for instance in instances100] * 5
     jobs += [(instance, "genetic", 200) for instance in instances100] * 5
+
+    print(len(jobs))
 
     with open("exp1-%s.log" % datetime.now().strftime("%d_%H:%M"), "w") as fd:
         with multiprocessing.Pool(None) as pool:

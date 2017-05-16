@@ -1,12 +1,5 @@
-sudo dnf install gcc make git
-
-run=$(date "+%d-%m-%y-%Hh")
-
-echo "Starting run $run" > $run.log
-
-touch result.zip
-
-echo "Uploading ..." >> $run.log
-curl --upload-file "result.zip" "http://partou.se/upload/jemhW/run" >> $run.log;
-
-echo "End of run run $run" >> $run.log
+sudo dnf -y install gcc-c++ make git htop
+git clone https://github.com/C4ptainCrunch/heuristic-optimization.git
+cd heuristic-optimization
+make
+python3 run.py
