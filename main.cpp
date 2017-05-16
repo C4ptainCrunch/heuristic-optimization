@@ -11,6 +11,8 @@
 
 #include "const.hpp"
 
+int cutoff = 0;
+
 Solution simple(const Instance& instance) {
     Solution sol = lrInit(instance);
     sol = irz(instance, sol);
@@ -18,7 +20,7 @@ Solution simple(const Instance& instance) {
     std::cout << instance.score(sol) << std::endl;
     const clock_t begin_time = clock();
 
-    while((float( clock () - begin_time ) /  CLOCKS_PER_SEC) <= STOP) {
+    while((float( clock () - begin_time ) /  CLOCKS_PER_SEC) <= cutoff) {
         auto new_sol =  ilsPerturbation(sol);
         new_sol = irz(instance, new_sol);
         if(instance.score(new_sol) < instance.score(sol)) {
@@ -56,7 +58,7 @@ Solution genetic(const Instance& instance) {
 
     // Run
     const clock_t begin_time = clock();
-    while((float( clock () - begin_time ) /  CLOCKS_PER_SEC) <= STOP) {
+    while((float( clock () - begin_time ) /  CLOCKS_PER_SEC) <= cutoff) {
 
         // Generate a new population
         auto next_population = crossoverElite(population, instance);
@@ -113,8 +115,21 @@ Solution genetic(const Instance& instance) {
 
 int main(int argc, char *argv[])
 {
-    if(argc != 2) {
-        std::cout << "Provide input files" << std::endl;
+    if(argc != 4) {
+        std::cout << "Provide input files, cutoff time, algo" << std::endl;
+        exit(-1);
+    }
+
+    cutoff = atoi(argv[2]);
+
+    std::function<Solution(const Instance&)> algo;
+
+    if(strcmp(argv[3], "gentic") == 0) {
+        algo = genetic;
+    } else if(strcmp(argv[3], "ils") == 0) {
+        algo = simple;
+    } else {
+        std::cout << "Unknown algo" << std::endl;
         exit(-1);
     }
 
@@ -123,7 +138,7 @@ int main(int argc, char *argv[])
     char const * fn = argv[1];
     Instance instance = Instance(fn);
 
-    auto solution = genetic(instance);
+    auto solution = algo(instance);
     std::cout << instance.score(solution) << std::endl;
 
     return 0;
