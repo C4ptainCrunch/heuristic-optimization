@@ -2,6 +2,7 @@
 #include <ctime>        // std::time
 #include <cstdlib>      // std::rand, std::srand
 #include <cstring>
+#include <math.h>
 
 #include "instance.hpp"
 #include "initialization.hpp"
@@ -55,6 +56,7 @@ Solution genetic(const Instance& instance) {
 
     auto best_solution = population[0];
     auto best_score = instance.score(best_solution);
+    size_t unsuccessfull = 0;
 
     // Run
     const clock_t begin_time = clock();
@@ -66,8 +68,8 @@ Solution genetic(const Instance& instance) {
         // Mutate solutions
         std::transform(
             next_population.begin(), next_population.end(), next_population.begin(),
-            [&uniform](Solution x) {
-                if(uniform(gen) < MUT_RATE){
+            [&uniform, unsuccessfull](Solution x) {
+                if(uniform(gen) < (MUT_RATE * sqrt(unsuccessfull + 1))){
                     return ilsPerturbation(x);
                 } else {
                     return x;
@@ -78,7 +80,13 @@ Solution genetic(const Instance& instance) {
         // Apply RZ on each sol
         std::transform(
             next_population.begin(), next_population.end(), next_population.begin(),
-            [&instance](Solution x) { return rzNeigh(instance, x); }
+            [&instance, unsuccessfull](Solution x) {
+                if(unsuccessfull > 5) {
+                    return irz(instance, x);
+                } else {
+                    return rzNeigh(instance, x);
+                }
+            }
         );
 
         // Merge the old an new pop
@@ -104,8 +112,10 @@ Solution genetic(const Instance& instance) {
             best_score = score,
             best_solution = best_of_population;
             std::cout << best_score << std::endl;
+            unsuccessfull = 0;
         } else {
             std::cout << "." << std::endl;
+            unsuccessfull++;
         }
 
     }
@@ -124,7 +134,7 @@ int main(int argc, char *argv[])
 
     std::function<Solution(const Instance&)> algo;
 
-    if(strcmp(argv[3], "gentic") == 0) {
+    if(strcmp(argv[3], "genetic") == 0) {
         algo = genetic;
     } else if(strcmp(argv[3], "ils") == 0) {
         algo = simple;
