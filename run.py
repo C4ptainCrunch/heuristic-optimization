@@ -27,6 +27,7 @@ def runi(instance, algo, timeout=200):
 instances50 = glob.glob("instances/50_*_*")
 instances100 = glob.glob("instances/100_*_*")
 
+
 def star_run(args):
     try:
         return runi(*args)

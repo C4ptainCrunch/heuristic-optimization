@@ -1,4 +1,4 @@
-sudo dnf -y install gcc-c++ make git htop
+sudo dnf -y install gcc-c++ make git htop screen
 git clone https://github.com/C4ptainCrunch/heuristic-optimization.git
 cd heuristic-optimization
 make

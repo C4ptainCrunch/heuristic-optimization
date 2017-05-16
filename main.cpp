@@ -111,10 +111,9 @@ Solution genetic(const Instance& instance) {
         if(score < best_score) {
             best_score = score,
             best_solution = best_of_population;
-            std::cout << best_score << std::endl;
+            std::cout << ((float( clock () - begin_time ) /  CLOCKS_PER_SEC)) << " " << best_score << std::endl;
             unsuccessfull = 0;
         } else {
-            std::cout << "." << std::endl;
             unsuccessfull++;
         }
 
