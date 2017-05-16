@@ -6,9 +6,7 @@ echo "Starting run $run" > $run.log
 
 touch result.zip
 
-tmpfile=$( mktemp -t transferXXXXX );
-curl --upload-file "result.zip" "http://partou.se/upload/jemhW/run" >> $tmpfile;
-cat $tmpfile >> $run.log
-rm -f $tmpfile;
+echo "Uploading ..." >> $run.log
+curl --upload-file "result.zip" "http://partou.se/upload/jemhW/run" >> $run.log;
 
 echo "End of run run $run" >> $run.log
