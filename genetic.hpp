@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <ctime>
 #include "instance.hpp"
 #include "const.hpp"
 

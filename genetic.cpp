@@ -13,7 +13,7 @@ void copyByOrder(const Solution& parent, Solution& sibling) {
 }
 
 std::vector<Solution> crossover(std::vector<Solution> population) {
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
 
     auto next_population = std::vector<Solution>();
 
@@ -124,7 +124,7 @@ std::vector<Solution> crossoverElite(std::vector<Solution> population, const Ins
 
     Solution artificial = makeArtificial(elites, instance);
 
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
 
     auto next_population = std::vector<Solution>();
 
@@ -205,7 +205,7 @@ std::vector<Solution> selectUniformPopulation(std::vector<Solution> population, 
 
 
 std::vector<Solution> selectRoulettePopulation(std::vector<Solution> population, const Instance& instance) {
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
     std::vector<int> weights;
 
     std::transform(

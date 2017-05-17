@@ -43,7 +43,7 @@ Solution simple(const Instance& instance) {
 
 
 Solution genetic(const Instance& instance) {
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
     std::uniform_real_distribution<double> uniform(0, 1);
 
     // Initialization
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    std::srand(42);
+    std::srand(RAND_SEED);
 
     char const * fn = argv[1];
     Instance instance = Instance(fn);

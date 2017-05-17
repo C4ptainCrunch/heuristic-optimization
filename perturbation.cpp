@@ -3,7 +3,7 @@
 #define LAMBDA 4
 
 Solution ilsPerturbation(Solution& solution) {
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
 
     std::uniform_int_distribution<> dis(0, solution.size() - 1);
     std::uniform_int_distribution<> dis2(0, solution.size() - 2);
@@ -22,7 +22,7 @@ Solution ilsPerturbation(Solution& solution) {
 
 
 bool ilsAccept(const Solution& solution, const Solution& new_solution, const Instance& instance) {
-    static std::mt19937 gen(42);
+    static std::mt19937 gen(RAND_SEED);
 
     int processing_times = 0;
     for (int i = 0; i < instance.getNbJob(); ++i) {
