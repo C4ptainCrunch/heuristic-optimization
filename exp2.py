@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     print(len(jobs))
 
-    with open("exp1-%s.log" % datetime.now().strftime("%d_%H:%M"), "w") as fd:
+    with open("exp2-%s.log" % datetime.now().strftime("%d_%H:%M"), "w") as fd:
         with multiprocessing.Pool(None) as pool:
             for res in pool.imap(star_run, jobs):
                 fd.write(json.dumps(res))

@@ -2,4 +2,5 @@ sudo dnf -y install gcc-c++ make git htop screen nano
 git clone https://github.com/C4ptainCrunch/heuristic-optimization.git
 cd heuristic-optimization
 make
+screen -S exp1
 python3 run.py
