@@ -5,7 +5,7 @@ from datetime import datetime
 from exp1 import star_run, instances50
 
 if __name__ == '__main__':
-    jobs = [(instance, "ils", 70 * 100) for instance in instances50[:5]] * 25
+    jobs = [(instance, "ils", 70 * 10) for instance in instances50[:5]] * 25
 
     print(len(jobs))
 
