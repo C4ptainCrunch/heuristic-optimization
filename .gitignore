@@ -1,2 +1,8 @@
 *.o
 fssp
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+*.pdf
+*.aux
