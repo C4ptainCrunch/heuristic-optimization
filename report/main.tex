@@ -4,7 +4,7 @@
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
-
+\usepackage[comma,authoryear]{natbib}
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 
@@ -23,9 +23,31 @@
 \begin{document}
 \maketitle
 
+\section{Introduction}
+
+This document is the report the implementation exercise 2 for the Heuristic Optimization course.
+The exercise asks to implement two stochastic local search algorithms for the the permutation flow-shop problem with the sum weighted completion time objective (also called PFSP-WCT).
+
+The PFSP-WCT has not been thoroughly studied in the literature so i used some inspiration from papers studying the PFSP with flowtime that is more studied.
+
+The first algorithm is an Iterated Local Search (ILS) inspired from \cite{panruiz2012} and the second is a genetic algorithm inspired from \cite{zhang2009}
+
+\section{Algorithms}
+      \subsection{Simple SLS}
+      \subsection{Genetic algorithm}
+
+
+\section{Parameters}
+      \subsection{Simple SLS}
+      \subsection{Genetic algorithm}
+
+\section{Results}
+
 \section{Implementation}
 
-\subsection{Usage}
+\section{Conclusion}
+
+
 This project was implemented in C++ with the latest C++17 additions for a better ease when programming.
 The compilation uses a\texttt{Makefile}. You can compile it by running the command \texttt{make} in the working directory. It will produce an executable named \texttt{fssp}. When ran with the \texttt{-h} option, it will show how to invocate it.
 
@@ -169,5 +191,8 @@ When comparing the scores of both VND neighborhoods with a student test, we see 
 transpose, exchange, insert has a better score than the other.
 
 We thus can conclude than using VND with the transpose, exchange, insert is preferable over the other methods.
+
+\bibliographystyle{natbib}
+\bibliography{bib}
 
 \end{document}

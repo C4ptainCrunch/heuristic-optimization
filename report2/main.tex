@@ -4,7 +4,6 @@
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
-
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 
@@ -14,160 +13,128 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{booktabs}
-\title{Heuristic Optimization : Implementation exercise 1}
+\title{Heuristic Optimization : Implementation exercise 2}
+\date{May 17, 2017}
 \author{Nikita Marchant (nimarcha@vub.ac.be)}
 
-\setlength{\parskip}{\baselineskip}%
+\setlength{\parskip}{7pt}%
 \setlength{\parindent}{0pt}%
+\renewcommand{\baselinestretch}{1}
 
 \begin{document}
 \maketitle
 
+\section{Introduction}
+
+This document is the report the implementation exercise 2 for the Heuristic Optimization course.
+The exercise asks to implement two stochastic local search algorithms for the the permutation flow-shop problem with the sum weighted completion time objective (also called PFSP-WCT).
+
+The PFSP-WCT has not been thoroughly studied in the literature so i used some inspiration from papers studying the PFSP with flowtime that is more studied.
+
+\section{Algorithms}
+
+The first algorithm is an Iterated Local Search (ILS) inspired from \cite{panruiz2012} and the second is a genetic algorithm inspired from \cite{zhang2009}.
+
+\subsection{Iterated Local Search}
+
+The Iterated Local Search is a stochastic meta-heuristic
+known to be applicable to multiple optimization problems~\cite{Lourenco2010}.
+
+It consists of these steps :
+
+\begin{enumerate}
+    \item Generate a initial solution
+    \item Apply a local search to the solution
+    \item When stuck in a local optimum, apply a perturbation
+    \item Apply a local search to the solution
+    \item Use an acceptance criterion for the perturbed then optimized solution
+    \item Go back to 3 or stop when a termination criterion is met.
+\end{enumerate}
+
+\subsubsection{Initialization method: $LR(x)$}
+\label{LR}
+
+The initialization method used in this implementation and in \cite{panruiz2012} is the $LR(x)$ heuristic introduced by \cite{liu2001}.  It consist in three steps :
+\begin{enumerate}
+    \item Rank the jobs by their weighed sum of flowtime
+    \item Generate $x$ solutions by inserting the job from position $x$ at the front of the solution
+    \item Select the sequence with the minimum weighted flow time
+\end{enumerate}
+
+\subsubsection{Local search}
+\label{RZ}
+The local search that was implemented is the iterated RZ (IRZ). The RZ uses a insertion neighborhood.
+It sequentially inserts each job at each possible position in the candidate solution (thus is in $O(n^2)$ complexity if $n$ is the number of jobs) and keeps the best one.
+
+The IRZ applies RZ until a local optimal solution is found (i.e. the RZ does not yield a better result).
+
+\subsubsection{Perturbation method}
+\label{pertu}
+
+After finding a local optimum, a perturbation is applied to be able to escape the local optimum and extend the search space.
+
+The perturbation method consists of $\gamma$ random insertion moves : each move selects randomly a job and moves it to a random position.
+
+\subsubsection{Acceptance criterion}
+
+After finding a local optimum, we have to decide if we keep the solution. I chose to implement the {simulated annealing} as the criterion with $\lambda \cdot \frac{\sum_{j=1}^{n} \sum_{i=1}^{m} p_{ij}}{10 mn}$ as a constant temperature.
+
+\subsubsection{Termination criterion}
+
+For both algorithm, the termination criterion is the time. For instances of size $n=50$, i stop at 70 seconds and for $n=100$ i stop at 200 seconds. Theses values were chosen as 100 times the runtime of the algorithms implemented in the first part.
+
+
+\subsection{Genetic algorithm}
+
+My implementation of a genetic algorithm is inspired form \cite{zhang2009} with some slight differences.
+
+\begin{enumerate}
+    \item Generate a initial population
+    \item Generate a new generation with the crossover operator
+    \item Perturbate each chromosome with a given probability
+    \item Apply a local search on each chromosome
+    \item Merge the old and the new population and select the eligible chromosomes to be kept
+    \item Goto 2 or stop if the termination criterion is met
+\end{enumerate}
+
+\subsubsection{Generation of the initial population}
+
+The initial population consists of one chromosome generated with $LR(x)$ (see \ref{LR}) and the other
+are generated as random permutation of the job set.
+
+\subsubsection{Crossover operator}
+
+
+\subsubsection{Mutation operator}
+
+The mutation operator if the same as in \ref{pertu} and if applied only with $P_m \cdot \sqrt{U + 1}$ probability.
+$U$ is defined as the number of generation since the last improvement to the global solution. This is not present in \cite{zhang2009} but helps to unstuck the algorithm when it is stuck in a local optimum since a long time.
+
+
+\subsubsection{Local search}
+
+The local search method is RZ (as explained in \ref{RZ}) but also as an original addition, if $U$ is bigger than $U_{IRZ}$, a IRZ algorithm is used instead because the mutation rate is much higher so the chromosome is highly perturbed.
+
+Using a IRZ all the time was tried but yielded no better results and was significantly slower\footnote{Due to the lack of computing power (see \ref{power}), this hypothesis could not be formally proved.}.
+
+\subsubsection{Population selection}
+
+
+
+\section{Parameters}
+\subsection{Computation power limitation}
+\label{power}
+\subsection{Iterated Local Search}
+\subsection{Genetic algorithm}
+
+\section{Results}
+
+
 \section{Implementation}
 
-\subsection{Usage}
-This project was implemented in C++ with the latest C++17 additions for a better ease when programming.
-The compilation uses a\texttt{Makefile}. You can compile it by running the command \texttt{make} in the working directory. It will produce an executable named \texttt{fssp}. When ran with the \texttt{-h} option, it will show how to invocate it.
+\section{Conclusion}
 
-When properly invoked, it will output only one line, containing only one integer : the score of the solution it found.
-
-\subsection{Organization}
-
-The main class \texttt{Instance} is inspired by the \texttt{PfspInstance} class given with the assignment.
-Notable changes are that indexes now begin at 0 to follow the convention of C++ and the move a the parsing into the constructor.
-
-The rest of the code is split into 4 other files :
-\begin{itemize}
-\item \texttt{main.cpp} : the file responsible for calling th rest of the code and parsing the command line arguments.
-\item \texttt{initialization.cpp} containing the initialization functions
-\item \texttt{neighborhood.cpp} containing the neighborhood generation functions
-\item \texttt{pivoting.cpp} containing the pivoting functions.
-\end{itemize}
-
-Note: another change from the original code given with the assignment is that the random seed is fixed to be able to reproduce experiments easy. If desired, this behavior can be overridden with a command line parameter.
-
-
-\section{Experiments}
-
-All the results shown here were computed and extracted from an IPython notebook
-given along with the source code.\footnote{The notebook is called analysis and can be found both in the .html and .ipynb version}
-
-\subsection{Exercise 1}
-
-At first, we compute the relative deviation from the best known solution :
-
-\begin{center}
-\begin{tabular}{lllr}
-\toprule
-Initialization & Pivoting & Neighborhood & Relative deviation \\
-\midrule
-random & best-fit & exchange &       4.526442 \\
-       &      & insert &       9.536986 \\
-       &      & transpose &      37.422758 \\
-       & first-fit & exchange &       1.840076 \\
-       &      & insert &       6.995218 \\
-       &      & transpose &      36.153227 \\
-srz & best-fit & exchange &       3.109973 \\
-       &      & insert &       3.161487 \\
-       &      & transpose &       4.144504 \\
-       & first-fit & exchange &       2.988648 \\
-       &      & insert &       2.935848 \\
-       &      & transpose &       4.130356 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Then the mean computation time:
-
-\begin{center}
-\begin{tabular}{llllr}
-\toprule
-       &      &          &     &        \\
-Initialization & Pivoting & Neighborhood  & \#Jobs &  Mean time  \\
-\midrule
-random & best-fit & exchange & 50  &   0.206074 \\
-       &      &          & 100 &   3.410456 \\
-       &      & insert & 50  &   0.250388 \\
-       &      &          & 100 &   3.855229 \\
-       &      & transpose & 50  &   0.017638 \\
-       &      &          & 100 &   0.080919 \\
-       & first-fit & exchange & 50  &   0.645275 \\
-       &      &          & 100 &  15.081069 \\
-       &      & insert & 50  &   0.830786 \\
-       &      &          & 100 &  19.725573 \\
-       &      & transpose & 50  &   0.022015 \\
-       &      &          & 100 &   0.083597 \\
-srz & best-fit & exchange & 50  &   0.057918 \\
-       &      &          & 100 &   0.771066 \\
-       &      & insert & 50  &   0.057227 \\
-       &      &          & 100 &   0.751073 \\
-       &      & transpose & 50  &   0.015344 \\
-       &      &          & 100 &   0.042693 \\
-       & first-fit & exchange & 50  &   0.053892 \\
-       &      &          & 100 &   1.070865 \\
-       &      & insert & 50  &   0.071624 \\
-       &      &          & 100 &   1.092688 \\
-       &      & transpose & 50  &   0.016870 \\
-       &      &          & 100 &   0.040687 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-
-After those two overviews, we can analyze in depth if there is a statistically significant difference between some methods, both in computation time and score.
-
-For that we use the Student t-test with a significance level of $0.05$ or $5\%$.
-
-When comparing the random initialization versus the simplified RZ heuristic, we see that none of the variants yield a significant improvement in the score over another.
-
-The next step is to compare the pivoting methods : in this case, except when using the SRZ and exchange or transpose, the ``first-improvement'' yields a significantly better score.
-When analyzing the computation time, we see another tendency  : when using the transpose method, the times are similar but otherwise the best-improvement wins.
-
-The last comparison to do is the neighborhoods: here, the result is more complex.
-When using the SRZ, using exchange of insert does not increase the score.
-Otherwise, exchange is always better than the others and insert is superior to transpose.
-When analyzing the computation time, we see that the transpose method is faster all the time and that exchange is faster than insert except with SRZ where there is no difference.
-
-\subsection{Exercise 2}
-At first, we compute the relative deviation from the best known solution :
-
-\begin{center}
-\begin{tabular}{lr}
-\toprule
-Neighborhood &  Relative deviation  \\
-\midrule
-Transpose exchange insert      &       2.550408 \\
-Transpose insert exchange      &       2.745331 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Then the mean computation time:
-
-
-\begin{center}
-\begin{tabular}{llr}
-\toprule
-        &     &       \\
-Neighborhood & \#Jobs &   Time  \\
-\midrule
-Transpose exchange insert & 50  &  0.073599 \\
-        & 100 &  1.154808 \\
-Transpose insert exchange & 50  &  0.064993 \\
-        & 100 &  0.728432 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-We can compute the improvement between a single neighborhood and the VND : \\
-Transpose, exchange, insert vs exchange: 122\% \\
-Transpose, exchange, insert vs insert: 221\%   \\
-Transpose, insert, exchange vs exchange: 113\% \\
-Transpose, insert, exchange vs insert: 206\%   \\
-
-When comparing the scores of both VND neighborhoods with a student test, we see that
-transpose, exchange, insert has a better score than the other.
-
-We thus can conclude than using VND with the transpose, exchange, insert is preferable over the other methods.
+\bibliographystyle{apalike}
+\bibliography{bib}
 
 \end{document}

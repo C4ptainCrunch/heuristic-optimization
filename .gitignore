@@ -6,3 +6,5 @@ fssp
 *.out
 *.pdf
 *.aux
+*.bbl
+*.blg
