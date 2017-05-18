@@ -13,6 +13,10 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{booktabs}
+\usepackage{float}
+\usepackage{siunitx}
+\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+
 \title{Heuristic Optimization : Implementation exercise 2}
 \date{May 17, 2017}
 \author{Nikita Marchant (nimarcha@vub.ac.be)}
@@ -26,7 +30,7 @@
 
 \section{Introduction}
 
-This document is the report the implementation exercise 2 for the Heuristic Optimization course.
+This document is the report of the implementation exercise 2 for the Heuristic Optimization course.
 The exercise asks to implement two stochastic local search algorithms for the the permutation flow-shop problem with the sum weighted completion time objective (also called PFSP-WCT).
 
 The PFSP-WCT has not been thoroughly studied in the literature so i used some inspiration from papers studying the PFSP with flowtime that is more studied.
@@ -43,7 +47,7 @@ known to be applicable to multiple optimization problems~\cite{Lourenco2010}.
 It consists of these steps :
 
 \begin{enumerate}
-    \item Generate a initial solution
+    \item Generate an initial solution
     \item Apply a local search to the solution
     \item When stuck in a local optimum, apply a perturbation
     \item Apply a local search to the solution
@@ -109,13 +113,13 @@ Two crossover operators were implemented, both described in \cite{zhang2009}. SJ
 
 \subsubsection{Mutation operator}
 
-The mutation operator if the same as in \ref{pertu} and if applied only with $P_m \cdot \sqrt{U + 1}$ probability.
+The mutation operator is the same as in \ref{pertu} but applied only with $P_m \cdot \sqrt{U + 1}$ probability.
 $U$ is defined as the number of generation since the last improvement to the global solution. This is not present in \cite{zhang2009} but helps to unstuck the algorithm when it is stuck in a local optimum since a long time.
 
 
 \subsubsection{Local search}
 
-The local search method is RZ (as explained in \ref{RZ}) but also as an original addition, if $U$ is bigger than $U_{IRZ}$, a IRZ algorithm is used instead because the mutation rate is much higher so the chromosome is highly perturbed.
+The local search method is RZ (as explained in \ref{RZ}) but also has an original addition, if $U$ is bigger than $U_{IRZ}$, a IRZ algorithm is used instead because the mutation rate is much higher so the chromosome is highly perturbed.
 
 Using a IRZ all the time was tried but yielded no better results and was significantly slower\footnote{Due to the lack of computing power (see \ref{power}), this hypothesis could not be formally proved.}.
 
@@ -153,6 +157,74 @@ The final runs made for the result section were ran on two 32-CPU virtual machin
 
 \section{Results}
 
+For the exercise, two experiments were ran. The first was a run of both algorithms five times on each instance.
+The second was a run of both algorithms, 25 times on the first 5 instances of size 5 with a cutoff time 10 times bigger.
+
+
+\subsection{Score}
+
+\subsection{Average percentage deviation}
+
+        \begin{figure}[H]
+            \centering
+            \label{dev_algo_instance}
+            \includegraphics[width=1.1\textwidth]{heatmap.png}
+            \caption{Average percentage deviation from best known solutions for each instance and algorithm}
+        \end{figure}
+
+In this heatmap, we can clearly see that my algorithms perform better on the instances of size 50 than size 100. This might be because the time termination criterion is too low for the instances of size 100. It also seems that ILS is better than the genetic on instances for size 100.
+
+        \begin{figure}[H]
+            \centering
+            \label{dev}
+            \includegraphics[width=0.3\textwidth]{dev.png}
+            \caption{Average percentage deviation from best known solutions for and algorithm}
+        \end{figure}
+
+By looking at the average percentage deviation in the Figure 2, it seems that ILS is better for both sizes.
+
+        \begin{figure}[H]
+            \centering
+            \label{corr}
+            \includegraphics[width=0.8\textwidth]{corr.png}
+            \caption{Average percentage deviation from best known solutions for and algorithm}
+        \end{figure}
+
+We can then make a correlation plot of the same data to visualize the distribution. We can see that almost every point is above $x=y$ thus, that ILS was better than genetic almost every time.
+
+To be sure of this assumption, we can use statistical tests to verify this hypothesis. The metric used is the Wilcoxon test with the null hypothesis that both samples are drawn from the same distribution.
+
+For the instances of size 50, the p-value is \num{6.33e-06} and for the size 100, \num{1.73e-06}. Both are bigger than 0.5 thus the hypothesis is rejected. This means that ILS is significantly better than genetic on both instance sizes.
+
+\subsection{Run times}
+
+After comparing the scores of both algorithms, we can compare the run times before finding a solution close enough to the best known solution. Theses graphs show the distribution of the time needed per algorithm and per allowed deviation.
+
+Unfortunately, those graphs are not representative because some instances did not find an acceptable solution before the timeout. For the 0.05\% deviation the genetic algorithm was not able to find a acceptable solution for 20 instances out of 125. For the 0.01\% deviation, the ILS missed 46 instances and the genetic 56.
+
+The bar charts just ignore those missing instances and thus do not have the same amount of points.
+
+These charts seem to show that ILS is faster to find acceptable solutions for each tolerance. (And the count of missing instances too).
+
+We can confirm this with Wilcoxon tests: they all reject the null hypothesis with p-values of \num{2.96e-22}, \num{6.87e-22}, \num{7.22e-19} and \num{6.07e-17}.
+
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{t2.png}
+        \end{figure}
+                \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{t1.png}
+        \end{figure}
+                \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{t05.png}
+        \end{figure}
+                \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{t01.png}
+        \end{figure}
 
 \section{Implementation}
 
